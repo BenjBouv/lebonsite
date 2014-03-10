@@ -5,54 +5,64 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}"
           xmlns="http://www.w3.org/1999/html">
 
-    <script type="text/javascript" src="{{ url_for("static", filename="js/jquery.dataTables.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for("static", filename="js/jquery.dataTables.plugins.js") }}"></script>
-
     <script type="text/javascript">
         var API_SOURCE = "{{ url_for("api_apparts") }}";
-        var datatable;
-
-        var tableUrlGen = function () {
-            return API_SOURCE + "?only_news=" + $("#only_news")[0].checked +
-                    "&only_likes=" + $("#only_likes")[0].checked +
-                    "&only_sent_emails=" + $("#only_sent_emails")[0].checked
-        };
-
-        $(document).ready(function () {
-            datatable = $('#tblApparts').dataTable({
-                "bProcessing": true,
-                "bServerSide": true,
-                "sPaginationType": "full_numbers",
-                "bjQueryUI": true,
-                "sAjaxSource": tableUrlGen(),
-                "aaSorting": [
-                    [8, 'desc']
-                ],
-                "sDom": 'ipfrtpl',
-                "bStateSave": true
-            });
-
-            $("#only_news").change(function () {
-                datatable.fnReloadAjax(tableUrlGen());
-            });
-            $("#only_likes").change(function () {
-                datatable.fnReloadAjax(tableUrlGen());
-            });
-            $("#only_sent_emails").change(function () {
-                datatable.fnReloadAjax(tableUrlGen());
-            });
-        });
     </script>
+    <script src='{{ url_for("static", filename="js/angular.js") }}'></script>
+    <script src='{{ url_for("static", filename="js/apparts.js") }}'></script>
 {% endblock %}
 {% block content %}
-    <p style="text-align:right; float:left;">
+    <!--
         <label for="only_news">Que les nouveautés</label><input type="checkbox" id="only_news"/>
         <br/>
         <label for="only_likes">Que les coups de coeur</label><input type="checkbox" id="only_likes"/>
         <br/>
         <label for="only_sent_emails">Que avec e-mails envoyés</label><input type="checkbox" id="only_sent_emails"/>
-    </p>
-    <table id="tblApparts">
+-->
+    <div class="small-3 columns">
+    <ul class="panel side-nav">
+        <li>
+            <label>Tri par</label>
+            <select ng-model='order'>
+                <option value=''>Aucun</option>
+                <option value='surface'>Surface</option>
+                <option value='rate'>Loyer</option>
+                <option value='sqRate'>Prix au mètre carré</option>
+                <option value='rooms'>Nombre de pièces</option>
+                <option value='postal'>Code postal</option>
+                <option value='date'>Date d'ajout</option>
+            </select>
+            <label><input type='checkbox' ng-model='inverse' /> Inverse</label>
+        </li>
+
+        <li>
+            <label>Meuble</label>
+                <select ng-model='search.withFurnitures'>
+                    <option value=''>Sans préférence</option>
+                    <option value='Oui'>Avec</option>
+                    <option value='Non'>Sans</option>
+                    <option value='N/A'>Non indiqué</option>
+                </select>
+        </li>
+
+        <li>
+            <label>Code postal</label>
+            <input type='text' ng-model='search.postal'>
+        </li>
+
+        <li>
+            <label>Pièces</label>
+            <input type='text' ng-model='search.rooms'>
+        </li>
+
+        <li>
+            <label><input type="checkbox" ng-model='colorSqr'>Colorer les prix au mètre carré</label>
+        </li>
+    </ul>
+    </div>
+
+    <div class="small-9 columns">
+    <table id="tblApparts" ng-controller='AppartsCtrl'>
         <thead>
         <tr>
             <th>Titre</th>
@@ -65,11 +75,29 @@
             <th>Surface</th>
             <th>Date</th>
             <th>Source</th>
+            <th>Prix mètre carré</th>
         </tr>
         </thead>
         <tfoot>
         </tfoot>
         <tbody>
+        <tr ng-repeat='a in apparts | filter:search:myComp | orderBy:order:inverse'>
+                <td><a href="{{ '{{a.url}}' }}">{{ '{{a.title}}' }}</a></td>
+                <td>
+                    <a class="th" href="{{ '{{a.url}}' }}" ng-if="a.photo">
+                        <img style="max-height:3em;" src="{{ '{{a.photo}}' }}"/>
+                    </a>
+                </td>
+                <td>{{ '{{a.rate}}' }}</td>
+                <td>{{ '{{a.city}}' }}</td>
+                <td>{{ '{{a.postal}}' }}</td>
+                <td>{{ '{{a.rooms}}' }}</td>
+                <td>{{ '{{a.withFurnitures}}' }}</td>
+                <td>{{ '{{a.surface}}' }}</td>
+                <td>{{ '{{a.date}}' }}</td>
+                <td>{{ '{{a.source}}' }}</td>
+                <td ng-style="{{ '(colorSqr) ? {{a.style}} : {};' }}">{{ '{{a.sqRate}}' }}</td>
+            </tr>
         </tbody>
     </table>
 

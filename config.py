@@ -1,6 +1,4 @@
 # coding=utf-8
-import secret
-
 
 # database
 SQLALCHEMY_DATABASE_URI = u'mysql+mysqldb://%s@localhost/lebonscrap?charset=utf8' % secret.DB_AUTH

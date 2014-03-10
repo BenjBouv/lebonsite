@@ -199,25 +199,27 @@ class DataTablesServer:
         self.run_queries()
 
     def output_result(self):
-        output = {'sEcho': str(int(self.request_values['sEcho'])),
+        output = {
                   'iTotalRecords': str(self.cardinality),
                   'iTotalDisplayRecords': str(self.cardinality_filtered)}
+        if self.request_values.has_key('sEcho'):
+            output['sEcho'] = str(int(self.request_values['sEcho']))
         aaData_rows = []
 
         for row in self.result_data:
             aaData_row = []
+            aaData_row.append(row.id)
+            aaData_row.append(url_for('appart', appart_id=row.id))
             for col_name in self.columns:
                 col = getattr(row, col_name, "Column not found")
 
                 if col_name == "photos":
                     if len(col) > 0:
-                        col = u'<a href="%s">' \
-                              u'<img src="%s/%s"/ style="max-height: 10em; width:auto;">' \
-                              u'</a>' % (url_for("appart", appart_id=row.id), config.BASE_PHOTOS_URL, col[0].file)
+                        col = u"%s/%s" % (config.BASE_PHOTOS_URL, col[0].file)
                     else:
                         col = ""
                 elif col_name == "titre":
-                    col = u'<a href="%s">%s</a>' % (url_for("appart", appart_id=row.id), col)
+                    col = u'%s' % (col)
                 elif col_name == "meuble":
                     if row.meuble is None:
                         col = "N/A"
@@ -282,7 +284,7 @@ class DataTablesServer:
 
 
     def sorting(self, query):
-        if ( self.request_values['iSortCol_0'] != "" ) and ( self.request_values['iSortingCols'] > 0 ):
+        if self.request_values.has_key('iSortCol_0') and ( self.request_values['iSortCol_0'] != "" ) and ( self.request_values['iSortingCols'] > 0 ):
             for i in range(int(self.request_values['iSortingCols'])):
                 if self.request_values['sSortDir_' + str(i)] == "asc":
                     direction = asc
@@ -294,7 +296,7 @@ class DataTablesServer:
 
 
     def paging(self, query):
-        if (self.request_values['iDisplayStart'] != "" ) and (self.request_values['iDisplayLength'] != -1 ):
+        if self.request_values.has_key('iDisplayStart') and (self.request_values['iDisplayStart'] != "" ) and (self.request_values['iDisplayLength'] != -1 ):
             start = int(self.request_values['iDisplayStart'])
             length = int(self.request_values['iDisplayLength'])
 

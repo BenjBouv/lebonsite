@@ -3,17 +3,21 @@
 <head>
     {% block head %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.min.css') }}">
         <script type="text/javascript" src="{{ url_for("static", filename="js/jquery.js") }}"></script>
+        <script src='{{ url_for("static", filename="js/foundation.js") }}'></script>
+        <script>$(document).foundation()</script>
         <title>{% block title %}{% endblock %} - LebonSite</title>
     {% endblock %}
 </head>
-<body>
+<body ng-app='apparts'>
 {% if g.user is defined and g.user.is_authenticated() %}
-    <div id="menu">Hello {{ g.user.username }} <a href="{{ url_for("logout") }}">[logout]</a> | <a
+<div class="row">
+    <div class="small-12 columns panel" id="menu">Hello {{ g.user.username }} <a href="{{ url_for("logout") }}">[logout]</a> | <a
             href="{{ url_for("apparts") }}">Voir les appart</a> | <a
             href="{{ url_for("notifications") }}">Notifications</a> | <a
-            href="{{ url_for("comments") }}">Tous les commentaires</a></div>
+            href="{{ url_for("comments") }}">Tous les commentaires</a></div></div>
 {% endif %}
-<div id="content">{% block content %}{% endblock %}</div>
+<div class="row" id="content">{% block content %}{% endblock %}</div>
 
 </body>
